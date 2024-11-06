@@ -1,0 +1,67 @@
+---
+title: "penguin_analysis_compressed"
+output: html_document
+date: "2024-10-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#libraries
+library(tidyverse)
+library(palmerpenguins)
+library(here)
+library(janitor)
+
+#loading our function file
+source(here("functions", "cleaning.R"))
+
+#loading raw data
+penguins_raw <- read.csv(here("data", "penguins_raw.csv"))
+
+#Using functions from functions script
+
+cleaning_penguin_columns <- function(raw_data){
+  print("Cleaned names, removed comments, removed empty rows and cols, removed delta.")
+  raw_data %>% 
+    clean_names() %>% 
+    shorten_species() %>%
+    remove_empty(c("rows", "cols")) %>% 
+    select(-starts_with("delta"))
+}
+
+colnames(penguins_raw)
+
+penguins_clean <- cleaning_penguin_columns(penguins_raw)
+
+colnames(penguins_clean)
+
+```
+Now using renv
+
+```{r}
+
+#initialise renv
+
+install.packages("renv")
+
+renv::init()
+#don't need to do this if it already exists
+renv::diagnostics()
+renv::snapshot()
+#lists all the versions of the packages in use 
+#essentially saves the environment
+
+#using the renv folder to install all the right libraries
+renv::restore()
+
+```
+
+
+
+
+
+
+

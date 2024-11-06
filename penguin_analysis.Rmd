@@ -1,0 +1,181 @@
+---
+title: "penguin_analysis"
+output: html_document
+date: "2024-10-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(palmerpenguins)
+library(janitor)
+library(here)
+```
+
+```{r}
+here::here()
+#checking working directory
+#less buggy than getwd()
+
+head(penguins_raw)
+```
+
+```{r}
+colnames(penguins_raw)
+
+```
+There are lots of issues with column names - you cannot just edit the names in excel
+It is important to preserve raw data as a csv file 
+
+Going to use the here library to help us with the file path. We are telling it to use the named folder
+and the filename penguins_raw.csv
+
+```{r}
+
+write.csv(penguins_raw, here("data", "penguins_raw.csv"))
+
+```
+
+Now removing columns:
+
+```{r}
+colnames(penguins_raw)
+
+library(dplyr)
+penguins_raw <- select(penguins_raw, -Comments)
+
+colnames(penguins_raw)
+
+```
+Can do the same for two columns at once:
+
+```{r}
+
+#THIS IS BAD CODE 
+#YOU HAVE JUST OVERWRITTEN THE OBJECT
+colnames(penguins_raw)
+
+penguins_raw <- select(penguins_raw, -Comments)
+penguins_raw <- select(penguins_raw, -starts_with("Delta"))
+
+colnames(penguins_raw)
+
+
+```
+
+So we need to load back in our safe copy of penguins code...
+
+```{r}
+penguins_raw <- read.csv(here("data", "penguins_raw.csv"))
+
+#checking
+
+colnames(penguins_raw)
+
+#make new variable, remove comments
+
+penguins_clean <- select(penguins_raw, -Comments)
+
+#removing delta columns - STILL BAD CODE
+#same issue of overwriting - we have already removed columns above 
+penguins_clean <- select(penguins_clean, -starts_with("Delta"))
+
+```
+
+Using piping to remove comments and delta columns
+
+```{r}
+
+library(tidyverse)
+library(janitor)
+
+penguins_clean <- penguins_raw %>%
+  select(-"Comments") %>%
+  select(-starts_with("Delta")) %>% #need to make sure steps are in the right order
+  clean_names()
+
+colnames(penguins_clean)
+#cleans column names
+
+```
+
+All code together:
+
+```{r}
+
+library(tidyverse)
+library(janitor)
+library(palmerpenguins)
+library(here)
+
+#writing a safe copy:
+
+#checking column names:
+
+#loading data from csv
+
+#cleaning it up using the pipe
+
+
+
+```
+
+Now going to make a function
+
+```{r}
+
+#called cleaning_penguin columns
+
+cleaning_penguin_columns <- function(raw_data) { #raw_data could have a different name
+  raw_data %>%
+    clean_names %>% #janitor function
+    remove_empty(c("rows", "cols")) %>% #c joins them together
+    select(-comments) %>% #might have to remove to get it to work
+    select(-starts_with("delta")) %>% #lowercase as the data will already have been cleaned
+    print("Removed empty columns and rows, cleaned column names, removed comments and delta columns")
+}
+
+#loading the data again
+
+penguins_raw <- read.csv(here("data", "penguins_raw.csv"))
+
+#check the column names
+colnames(penguins_raw)
+
+#running the function
+library(dplyr)
+penguins_clean <- cleaning_penguin_columns(penguins_raw)
+
+#checking the output
+colnames(penguins_clean)
+
+#in reality the function would be more applicable in a different setting 
+```
+Now we have clean data we now need to save it
+
+```{r}
+write.csv(penguins_clean, here("data", "penguins_clean.csv"))
+
+```
+
+
+Can also move the cleaning function to a separate script
+Going to make a new subfolder called functions where we can put our reusable co
+
+#in the console:
+file.create(here"functions", "cleaning.R")
+
+then went onto canvas and downloaded the cleaning.R function file
+need the R markdown file
+
+```{r}
+
+source(here("functions", "cleaning.R"))
+
+#loading functions from a different file
+
+```
+
+
+Using function 
